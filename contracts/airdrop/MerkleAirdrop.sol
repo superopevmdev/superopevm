@@ -2,7 +2,7 @@
 pragma solidity ^0.8.30;
 
 import {IMerkleAirdrop as IMerkleAirdrop} from "@superopevm/contracts/airdrop/IMerkleAirdrop.sol";
-import {IERC20 as IERC20} from "@superopevm/contracts/token/ERC20/IERC20.sol";
+import {IERC20 as IERC20} from "@superopevm/contracts/interfaces/IERC20.sol";
 import {MerkleProof as MerkleProof} from "@superopevm/contracts/utils/cryptography/MerkleProof.sol";
 import {Ownable as Ownable} from "@superopevm/contracts/access/Ownable.sol";
 import {Pausable as Pausable} from "@superopevm/contracts/security/Pausable.sol";
