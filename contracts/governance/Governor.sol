@@ -26,7 +26,7 @@ contract Governor is IGovernor, Ownable, Pausable {
 
     // Proposal tracking
     Counters.Counter private _proposalIdTracker;
-    mapping(uint256 => Proposal) public proposals;
+    mapping(uint256 => Proposal) internal _proposals;
 
     // Vote tracking
     mapping(uint256 => mapping(address => bool)) public hasVoted;
@@ -50,6 +50,13 @@ contract Governor is IGovernor, Ownable, Pausable {
     }
 
     /**
+     * @dev Mengimplementasikan fungsi proposals dari antarmuka IGovernor.
+     */
+    function proposals(uint256 proposalId) external view override returns (Proposal memory) {
+        return _proposals[proposalId];
+    }
+
+    /**
      * @dev Create a new proposal
      */
     function propose(
@@ -67,7 +74,7 @@ contract Governor is IGovernor, Ownable, Pausable {
         uint256 proposalId = _proposalIdTracker.current();
         _proposalIdTracker.increment();
 
-        proposals[proposalId] = Proposal({
+        _proposals[proposalId] = Proposal({
             id: proposalId,
             proposer: msg.sender,
             startBlock: block.number.add(votingDelay),
@@ -93,7 +100,7 @@ contract Governor is IGovernor, Ownable, Pausable {
      */
     function queue(uint256 proposalId) external override whenNotPaused {
         require(state(proposalId) == 4, "Governor: proposal not successful");
-        Proposal storage proposal = proposals[proposalId];
+        Proposal storage proposal = _proposals[proposalId];
 
         for (uint256 i = 0; i < proposal.targets.length; i++) {
             // Queue logic would go here
@@ -105,7 +112,7 @@ contract Governor is IGovernor, Ownable, Pausable {
      */
     function execute(uint256 proposalId) external payable override whenNotPaused {
         require(state(proposalId) == 5, "Governor: proposal not ready for execution");
-        Proposal storage proposal = proposals[proposalId];
+        Proposal storage proposal = _proposals[proposalId];
 
         proposal.executed = true;
         emit ProposalExecuted(proposalId);
@@ -125,7 +132,7 @@ contract Governor is IGovernor, Ownable, Pausable {
      * @dev Cancel a proposal
      */
     function cancel(uint256 proposalId) external override {
-        Proposal storage proposal = proposals[proposalId];
+        Proposal storage proposal = _proposals[proposalId];
         require(
             msg.sender == proposal.proposer ||
             token.balanceOf(proposal.proposer) < proposal.proposalThreshold,
@@ -147,11 +154,11 @@ contract Governor is IGovernor, Ownable, Pausable {
         hasVoted[proposalId][msg.sender] = true;
 
         if (support == 1) {
-            proposals[proposalId].forVotes = proposals[proposalId].forVotes.add(votes);
+            _proposals[proposalId].forVotes = _proposals[proposalId].forVotes.add(votes);
         } else if (support == 0) {
-            proposals[proposalId].againstVotes = proposals[proposalId].againstVotes.add(votes);
+            _proposals[proposalId].againstVotes = _proposals[proposalId].againstVotes.add(votes);
         } else if (support == 2) {
-            proposals[proposalId].abstainVotes = proposals[proposalId].abstainVotes.add(votes);
+            _proposals[proposalId].abstainVotes = _proposals[proposalId].abstainVotes.add(votes);
         }
 
         emit VoteCast(msg.sender, proposalId, support);
@@ -161,7 +168,7 @@ contract Governor is IGovernor, Ownable, Pausable {
      * @dev Get proposal state
      */
     function state(uint256 proposalId) public view override returns (uint8) {
-        Proposal storage proposal = proposals[proposalId];
+        Proposal storage proposal = _proposals[proposalId];
 
         if (proposal.canceled) {
             return 2; // Canceled
