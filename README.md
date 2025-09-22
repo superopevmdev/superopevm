@@ -25,3 +25,9 @@ A comprehensive Solidity library for advanced DeFi applications with privacy, se
 
 ```bash
 npm install @superopevm/contracts
+
+or in foundry
+
+```bash
+
+forge install superopevmdev/superopevm
