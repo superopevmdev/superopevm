@@ -2,7 +2,7 @@
 pragma solidity ^0.8.30;
 
 import {IGovernor as IGovernor} from "@superopevm/contracts/governance/IGovernor.sol";
-import {IERC20 as IERC20} from "@superopevm/contracts/token/ERC20/IERC20.sol";
+import {IERC20 as IERC20} from "@superopevm/contracts/interfaces/IERC20.sol";
 import {SafeMath as SafeMath} from "@superopevm/contracts/utils/math/SafeMath.sol";
 import {Counters as Counters} from "@superopevm/contracts/utils/math/Counters.sol";
 import {Ownable as Ownable} from "@superopevm/contracts/access/Ownable.sol";
