@@ -29,7 +29,7 @@ abstract contract EIP712 {
         _CACHED_DOMAIN_SEPARATOR = _buildDomainSeparator(typeHash, hashedName, hashedVersion);
     }
     
-    function DOMAIN_SEPARATOR() public view returns (bytes32) {
+    function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
         if (address(this) == _CACHED_THIS && block.chainid == _CACHED_CHAIN_ID) {
             return _CACHED_DOMAIN_SEPARATOR;
         } else {
