@@ -10,22 +10,13 @@ import {ReentrancyGuard as ReentrancyGuard} from "@superopevm/contracts/security
  * @dev Multi-signature wallet contract
  */
 contract MultiSigWallet is IMultiSig, Ownable, ReentrancyGuard {
-    // Transaction structure
-    struct Transaction {
-        address destination;
-        uint256 value;
-        bytes data;
-        bool executed;
-        uint256 confirmations;
-    }
-
     // State variables
     mapping(uint256 => Transaction) public transactions;
     mapping(uint256 => mapping(address => bool)) public confirmations;
     mapping(address => bool) public isOwner;
     address[] public owners;
     uint256 public required;
-    uint256 public transactionCount;
+    uint256 public _transactionCount;
 
     // Events
     event Submission(uint256 indexed transactionId);
@@ -103,8 +94,9 @@ contract MultiSigWallet is IMultiSig, Ownable, ReentrancyGuard {
      * @param _owners List of initial owners
      * @param _required Number of required confirmations
      */
-    constructor(address[] memory _owners, uint256 _required) {
-        validRequirement(_owners.length, _required);
+    constructor(address[] memory _owners, uint256 _required)
+        validRequirement(_owners.length, _required)
+    {
         for (uint256 i = 0; i < _owners.length; i++) {
             require(_owners[i] != address(0), "MultiSigWallet: invalid owner");
             require(!isOwner[_owners[i]], "MultiSigWallet: duplicate owner");
@@ -131,7 +123,7 @@ contract MultiSigWallet is IMultiSig, Ownable, ReentrancyGuard {
         uint256 value,
         bytes calldata data
     ) external override onlyOwner returns (uint256 transactionId) {
-        transactionId = transactionCount;
+        transactionId = _transactionCount;
         transactions[transactionId] = Transaction({
             destination: destination,
             value: value,
@@ -139,7 +131,7 @@ contract MultiSigWallet is IMultiSig, Ownable, ReentrancyGuard {
             executed: false,
             confirmations: 0
         });
-        transactionCount += 1;
+        _transactionCount += 1;
         emit Submission(transactionId);
     }
 
@@ -239,7 +231,7 @@ contract MultiSigWallet is IMultiSig, Ownable, ReentrancyGuard {
         }
         owners.pop();
         if (required > owners.length) {
-            changeRequirement(owners.length);
+            _changeRequirement(owners.length);
         }
         emit OwnerRemoval(owner);
     }
@@ -282,13 +274,26 @@ contract MultiSigWallet is IMultiSig, Ownable, ReentrancyGuard {
         required = _required;
         emit RequirementChange(_required);
     }
+    
+    /**
+     * @dev Internal function to change required number of confirmations
+     */
+    function _changeRequirement(uint256 _required) internal {
+        // BARIS DI BAWAH INI YANG DIUBAH
+        require(
+            owners.length > 0 && owners.length <= 20 && _required > 0 && _required <= owners.length,
+            "MultiSigWallet: invalid requirement"
+        );
+        required = _required;
+        emit RequirementChange(_required);
+    }
 
     /**
      * @dev Get transaction count
      * @return Number of transactions
      */
     function transactionCount() external view override returns (uint256) {
-        return transactionCount;
+        return _transactionCount;
     }
 
     /**
@@ -306,7 +311,7 @@ contract MultiSigWallet is IMultiSig, Ownable, ReentrancyGuard {
      * @return value Transaction ether value
      * @return data Transaction data payload
      * @return executed Transaction execution status
-     * @return confirmations Number of confirmations
+     * @return _confirmations Number of confirmations
      */
     function getTransaction(uint256 transactionId)
         external
@@ -317,7 +322,7 @@ contract MultiSigWallet is IMultiSig, Ownable, ReentrancyGuard {
             uint256 value,
             bytes memory data,
             bool executed,
-            uint256 confirmations
+            uint256 _confirmations
         )
     {
         Transaction storage txn = transactions[transactionId];
