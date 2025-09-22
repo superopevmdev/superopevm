@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import {IERC20 as IERC20} from "@superopevm/contracts/token/ERC20/IERC20.sol";
+import {IERC20 as IERC20} from "@superopevm/contracts/interfaces/IERC20.sol";
 import {IERC20Metadata as IERC20Metadata} from "@superopevm/contracts/interfaces/IERC20Metadata.sol";
 import {Context as Context} from "@superopevm/contracts/utils/Context.sol";
 
@@ -57,7 +57,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
         _transfer(sender, recipient, amount);
         uint256 currentAllowance = _allowances[sender][_msgSender()];
-        require "ERC20: transfer amount(currentAllowance >= amount, exceeds allowance");
+        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
         unchecked {
             _approve(sender, _msgSender(), currentAllowance - amount);
         }
