@@ -29,7 +29,7 @@ abstract contract ERC20PermitWithSignatureChecker is ERC20, IERC20Permit, EIP712
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual override {
+    ) public virtual override(IERC20Permit) {
         require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
         
         bytes32 structHash = keccak256(
@@ -50,11 +50,11 @@ abstract contract ERC20PermitWithSignatureChecker is ERC20, IERC20Permit, EIP712
         _approve(owner, spender, value);
     }
     
-    function nonces(address owner) public view virtual override returns (uint256) {
+    function nonces(address owner) public view virtual override(IERC20Permit) returns (uint256) {
         return _nonces[owner].current();
     }
     
-    function DOMAIN_SEPARATOR() public view virtual override returns (bytes32) {
+    function DOMAIN_SEPARATOR() public view virtual override(EIP712, IERC20Permit) returns (bytes32) {
         return EIP712.DOMAIN_SEPARATOR();
     }
 }
