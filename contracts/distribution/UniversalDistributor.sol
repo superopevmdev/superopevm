@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import {IERC20 as IERC20} from "@superopevm/contracts/token/ERC20/IERC20.sol";
+import {IERC20 as IERC20} from "@superopevm/contracts/interfaces/IERC20.sol";
 import {Ownable as Ownable} from "@superopevm/contracts/access/Ownable.sol";
 import {Pausable as Pausable} from "@superopevm/contracts/security/Pausable.sol";
 import {ReentrancyGuard as ReentrancyGuard} from "@superopevm/contracts/security/ReentrancyGuard.sol";
